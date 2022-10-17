@@ -1,3 +1,7 @@
+'''
+Handles transactions and stores
+'''
+
 import constants
 
 import pathlib
@@ -73,3 +77,14 @@ def readTransaction(transactionString) -> dict:
         d[headers[keyindex]] = values[keyindex]
 
     return d 
+
+def addTransaction(value, description, category, subcategory, timestamp, store) -> bool:
+    '''
+    Adds the new transaction to the given account. Returns value indicates success. 
+    '''
+
+    logging.info("Adding new transaction: ", value, description, category, subcategory, timestamp, store)
+
+    with open(store, 'w') as f:
+        f.writelines(value + ',' + description + ',' + category + ',' + subcategory + ',' + str(timestamp))
+    return True

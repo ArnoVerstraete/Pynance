@@ -7,7 +7,7 @@ pynanceHomeDirName = "pynancedata"
 pynanceHomeDir = homeDir + '/' + pynanceHomeDirName
 
 # Header printed with every new CSV transaction file
-csvTransactionHeader = "value;description;category;timestamp;accountID"
+csvTransactionHeader = "value;description;category;subcategory;timestamp"
 
 def getCSVHeaders() -> list:
     return csvTransactionHeader.split(";")

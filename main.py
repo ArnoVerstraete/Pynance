@@ -8,20 +8,27 @@ existingStores = pynance.checkFinanceStoresInHomeDir()
 currFinanceStore = ""
 
 def loopCommands() -> None:
+    handleOverview()
+
     while(True):
         command = input()
 
         commandSplit = command.split(" ")
-        commandFirst = commandSplit[0]
+        commandFirst = commandSplit[0].lower()
 
         if commandFirst == "h" or commandFirst == "help":
             print("Help...")
         elif commandFirst == "l" or commandFirst == "list":
-            print("List transactions...")
+            handleList()
         elif commandFirst == "b" or commandFirst == "balance":
             print(pynance.getBalance(currFinanceStore))
+        elif commandFirst == "mb" or commandFirst == "monthlybalance":
+            print(pynance.getMonthlyBalance(currFinanceStore))
         elif commandFirst == "a" or commandFirst == "add":
             handleAdd(command, commandSplit, commandFirst)
+        elif commandFirst == "o" or commandFirst == "overview":
+            handleOverview()
+
         elif commandFirst == "exit":
             exit()
 
@@ -63,6 +70,13 @@ def handleAdd(command, commandSplit, commandFirst) -> None:
             return
         elif inp.lower() == "n":
             break
+
+def handleOverview() -> None:
+    print(pynance.getBalance(currFinanceStore))
+
+def handleList() -> None:
+    for t in pynance.getTransactionsList(currFinanceStore):
+        print(t.value, t.description. t.category, t.subcategory, datetime.utcfromtimestamp(t.date).strftime('%d-%m-%Y %H:%M:%S'))
 
 while True:
     if currFinanceStore != "":

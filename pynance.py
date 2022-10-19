@@ -7,6 +7,36 @@ import constants
 import pathlib
 import logging
 from glob import glob
+import datetime
+
+class transaction:
+    value = 0
+    description = ""
+    category = ""
+    subcategory = ""
+    date = datetime.datetime.timestamp(datetime.datetime.now())
+
+    def __init__(self, v, d, c, sc, da):
+        self.value = float(v)
+        self.description = d
+        self.category = c
+        self.subcategory = sc
+        self.date = date = datetime.datetime.utcfromtimestamp(float(da))
+        
+transactions = []
+transactionsCached = False
+
+def cacheTransactions(storePath) -> bool:
+    with open(storePath) as f:
+        isFirstline = True
+        for line in f:
+            if isFirstline:
+                isFirstline = False
+                continue
+            d = readTransaction(line)
+            transactions.append(transaction(d["value"], d["description"], d["category"], d["subcategory"], d["timestamp"]))
+
+    return True
 
 def newFinance(filename, directory=None) -> str:
     '''
@@ -52,17 +82,32 @@ def getBalance(storePath) -> float:
     '''
     Checks the account balance of the given finance store
     '''
+
+    global transactionsCached
+    if not transactionsCached:
+        transactionsCached = cacheTransactions(storePath)
     
     balance = 0
 
-    with open(storePath) as f:
-        isFirstline = True
-        for line in f:
-            if isFirstline:
-                isFirstline = False
-                continue
-            d = readTransaction(line)
-            balance += float(d["value"])
+    for t in transactions:
+        balance += t.value
+    
+    return balance
+
+def getMonthlyBalance(storePath) -> float:
+    global transactionsCached
+    if not transactionsCached:
+        print("not")
+        transactionsCached = cacheTransactions(storePath)
+    
+    balance = 0
+
+    currYear = datetime.datetime.now().year
+    currMonth = datetime.datetime.now().month
+
+    for t in transactions:
+        if t.date.month == currMonth and t.date.year == currYear:
+            balance += t.value
     
     return balance
 
@@ -70,6 +115,7 @@ def readTransaction(transactionString) -> dict:
     '''
     Returns the values of the transaction into a dictionary
     '''
+
     headers = constants.getCSVHeaders()
     values = transactionString.split(',')
     d = dict()
@@ -83,8 +129,22 @@ def addTransaction(value, description, category, subcategory, timestamp, store) 
     Adds the new transaction to the given account. Returns value indicates success. 
     '''
 
+    global transactionsCached
+    if not transactionsCached:
+        transactionsCached = cacheTransactions(storePath)
+
     logging.info("Adding new transaction: ", value, description, category, subcategory, timestamp, store)
 
     with open(store, 'w') as f:
         f.writelines(value + ',' + description + ',' + category + ',' + subcategory + ',' + str(timestamp))
+    
+    transactions.append(transaction(value, description, category, subcategory, timestamp))
+    
     return True
+
+def getTransactionsList(storePath) -> list:
+    global transactionsCached
+    if not transactionsCached:
+        transactionsCached = cacheTransactions(storePath)
+
+    return transactions

@@ -17,6 +17,7 @@ def checkIfCategoryExists(category, storePath, isSubCategory) -> bool:
     Checks if the given category or subcategory has been used before
     '''
 
+    global categoriesCached
     if not categoriesCached:
         cacheCategories(storePath)
 
@@ -57,6 +58,7 @@ def cacheCategories(storePath) -> dict:
 
                 addCategoryToCache(currCategory, currSubcategory)
 
+    global categoriesCached
     categoriesCached = True
     return categories
 
